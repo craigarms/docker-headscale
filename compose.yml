@@ -1,0 +1,13 @@
+services:
+  headscale:
+    image: headscale/headscale
+    container_name: headscale
+    volumes:
+      - ./config/config.yaml:/etc/headscale/config.yaml
+    command: serve
+    networks:
+      - backend
+
+networks:
+  backend:
+    external: true
