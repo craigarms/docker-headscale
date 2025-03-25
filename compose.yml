@@ -4,6 +4,7 @@ services:
     container_name: headscale
     volumes:
       - ./config/config.yaml:/etc/headscale/config.yaml
+      - ./config/derpmap.yaml:/etc/headscale/derpmap.yaml
     command: serve
     networks:
       - backend

@@ -10,13 +10,13 @@
 #
 # https://myheadscale.example.com:443
 #
-server_url: http://127.0.0.1:8080
+server_url: https://vpn.cesi.ztn.ovh
 
 # Address to listen to / bind to on the server
 #
 # For production:
-# listen_addr: 0.0.0.0:8080
-listen_addr: 127.0.0.1:8080
+listen_addr: 0.0.0.0:8080
+# listen_addr: 127.0.0.1:8080
 
 # Address to listen to /metrics, you may want
 # to keep this endpoint private to your internal
@@ -31,14 +31,14 @@ metrics_listen_addr: 127.0.0.1:9090
 # valid certificates.
 #
 # For production:
-# grpc_listen_addr: 0.0.0.0:50443
-grpc_listen_addr: 127.0.0.1:50443
+grpc_listen_addr: 0.0.0.0:50443
+#grpc_listen_addr: 127.0.0.1:50443
 
 # Allow the gRPC admin interface to run in INSECURE
 # mode. This is not recommended as the traffic will
 # be unencrypted. Only enable if you know what you
 # are doing.
-grpc_allow_insecure: false
+grpc_allow_insecure: true
 
 # The Noise section includes specific configuration for the
 # TS2021 Noise protocol
@@ -58,7 +58,7 @@ noise:
 # IPv4: https://github.com/tailscale/tailscale/blob/22ebb25e833264f58d7c3f534a8b166894a89536/net/tsaddr/tsaddr.go#L33
 # Any other range is NOT supported, and it will cause unexpected issues.
 prefixes:
-  v4: 100.64.0.0/10
+  v4: 100.64.0.0/24
   v6: fd7a:115c:a1e0::/48
 
   # Strategy used for allocation of IPs to nodes, available options:
@@ -121,7 +121,8 @@ derp:
   #
   # paths:
   #   - /etc/headscale/derp-example.yaml
-  paths: []
+  paths:
+    - /etc/headscale/derpmap.yaml
 
   # If enabled, a worker will be set up to periodically
   # refresh the given sources and update the derpmap
