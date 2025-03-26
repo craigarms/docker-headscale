@@ -38,7 +38,7 @@ grpc_listen_addr: 0.0.0.0:50443
 # mode. This is not recommended as the traffic will
 # be unencrypted. Only enable if you know what you
 # are doing.
-grpc_allow_insecure: true
+grpc_allow_insecure: false
 
 # The Noise section includes specific configuration for the
 # TS2021 Noise protocol
@@ -173,7 +173,6 @@ database:
     # https://www.sqlite.org/c3ref/wal_autocheckpoint.html
     # Set to 0 to disable automatic checkpointing.
     wal_autocheckpoint: 1000
-
   # # Postgres config
   # Please note that using Postgres is highly discouraged as it is only supported for legacy reasons.
   # See database.type for more information.
@@ -192,14 +191,14 @@ database:
   #   # in the 'ssl' field. Refers to https://www.postgresql.org/docs/current/libpq-ssl.html Table 34.1.
   #   ssl: false
 
-### TLS configuration
-#
-## Let's encrypt / ACME
-#
-# headscale supports automatically requesting and setting up
-# TLS for a domain with Let's Encrypt.
-#
-# URL to ACME directory
+  ### TLS configuration
+  #
+  ## Let's encrypt / ACME
+  #
+  # headscale supports automatically requesting and setting up
+  # TLS for a domain with Let's Encrypt.
+  #
+  # URL to ACME directory
 acme_url: https://acme-v02.api.letsencrypt.org/directory
 
 # Email to register with ACME provider
@@ -273,7 +272,7 @@ dns:
   # `base_domain` must be a FQDN, without the trailing dot.
   # The FQDN of the hosts will be
   # `hostname.base_domain` (e.g., _myhost.example.com_).
-  base_domain: example.com
+  base_domain: cesi.ztn
 
   # List of DNS servers to expose to clients.
   nameservers:
@@ -282,15 +281,13 @@ dns:
       - 1.0.0.1
       - 2606:4700:4700::1111
       - 2606:4700:4700::1001
-
       # NextDNS (see https://tailscale.com/kb/1218/nextdns/).
       # "abc123" is example NextDNS ID, replace with yours.
       # - https://dns.nextdns.io/abc123
 
-    # Split DNS (see https://tailscale.com/kb/1054/dns/),
-    # a map of domains and which DNS server to use for each.
-    split:
-      {}
+      # Split DNS (see https://tailscale.com/kb/1054/dns/),
+      # a map of domains and which DNS server to use for each.
+    split: {}
       # foo.bar.com:
       #   - 1.1.1.1
       # darp.headscale.net:
@@ -304,7 +301,13 @@ dns:
   # Extra DNS records
   # so far only A and AAAA records are supported (on the tailscale side)
   # See: docs/ref/dns.md
-  extra_records: []
+  extra_records:
+    - name: vpn.cesi.ztn.ovh
+      type: A
+      value: 192.168.254.131
+    - name: login.cesi.ztn.ovh
+      type: A
+      value: 192.168.254.131
   #   - name: "grafana.myvpn.example.com"
   #     type: "A"
   #     value: "100.64.0.3"
@@ -316,8 +319,8 @@ dns:
   # Headscale processes this file on each change.
   # extra_records_path: /var/lib/headscale/extra-records.json
 
-# Unix socket used for the CLI to connect without authentication
-# Note: for production you will want to set this to something like:
+  # Unix socket used for the CLI to connect without authentication
+  # Note: for production you will want to set this to something like:
 unix_socket: /var/run/headscale/headscale.sock
 unix_socket_permission: "0770"
 #
@@ -325,70 +328,70 @@ unix_socket_permission: "0770"
 # it is still being tested and might have some bugs, please
 # help us test it.
 # OpenID Connect
-# oidc:
-#   only_start_if_oidc_is_available: true
-#   issuer: "https://your-oidc.issuer.com/path"
-#   client_id: "your-oidc-client-id"
-#   client_secret: "your-oidc-client-secret"
-#   # Alternatively, set `client_secret_path` to read the secret from the file.
-#   # It resolves environment variables, making integration to systemd's
-#   # `LoadCredential` straightforward:
-#   client_secret_path: "${CREDENTIALS_DIRECTORY}/oidc_client_secret"
-#   # client_secret and client_secret_path are mutually exclusive.
-#
-#   # The amount of time from a node is authenticated with OpenID until it
-#   # expires and needs to reauthenticate.
-#   # Setting the value to "0" will mean no expiry.
-#   expiry: 180d
-#
-#   # Use the expiry from the token received from OpenID when the user logged
-#   # in, this will typically lead to frequent need to reauthenticate and should
-#   # only been enabled if you know what you are doing.
-#   # Note: enabling this will cause `oidc.expiry` to be ignored.
-#   use_expiry_from_token: false
-#
-#   # Customize the scopes used in the OIDC flow, defaults to "openid", "profile" and "email" and add custom query
-#   # parameters to the Authorize Endpoint request. Scopes default to "openid", "profile" and "email".
-#
-#   scope: ["openid", "profile", "email", "custom"]
-#   extra_params:
-#     domain_hint: example.com
-#
-#   # List allowed principal domains and/or users. If an authenticated user's domain is not in this list, the
-#   # authentication request will be rejected.
-#
-#   allowed_domains:
-#     - example.com
-#   # Note: Groups from keycloak have a leading '/'
-#   allowed_groups:
-#     - /headscale
-#   allowed_users:
-#     - alice@example.com
-#
-#   # Optional: PKCE (Proof Key for Code Exchange) configuration
-#   # PKCE adds an additional layer of security to the OAuth 2.0 authorization code flow
-#   # by preventing authorization code interception attacks
-#   # See https://datatracker.ietf.org/doc/html/rfc7636
-#   pkce:
-#     # Enable or disable PKCE support (default: false)
-#     enabled: false
-#     # PKCE method to use:
-#     # - plain: Use plain code verifier
-#     # - S256: Use SHA256 hashed code verifier (default, recommended)
-#     method: S256
-#
-#   # Map legacy users from pre-0.24.0 versions of headscale to the new OIDC users
-#   # by taking the username from the legacy user and matching it with the username
-#   # provided by the OIDC. This is useful when migrating from legacy users to OIDC
-#   # to force them using the unique identifier from the OIDC and to give them a
-#   # proper display name and picture if available.
-#   # Note that this will only work if the username from the legacy user is the same
-#   # and there is a possibility for account takeover should a username have changed
-#   # with the provider.
-#   # When this feature is disabled, it will cause all new logins to be created as new users.
-#   # Note this option will be removed in the future and should be set to false
-#   # on all new installations, or when all users have logged in with OIDC once.
-#   map_legacy_users: false
+oidc:
+  only_start_if_oidc_is_available: true
+  issuer: "https://login.cesi.ztn.ovh/realms/CESI"
+  client_id: "Headscale"
+  client_secret: "klfnQjvCoo3Mye4ENq0AMZLTq0TKKYqU"
+  # Alternatively, set `client_secret_path` to read the secret from the file.
+  # It resolves environment variables, making integration to systemd's
+  # `LoadCredential` straightforward:
+  # client_secret_path: "${CREDENTIALS_DIRECTORY}/oidc_client_secret"
+  # client_secret and client_secret_path are mutually exclusive.
+
+  # The amount of time from a node is authenticated with OpenID until it
+  # expires and needs to reauthenticate.
+  # Setting the value to "0" will mean no expiry.
+  expiry: 180d
+
+  # Use the expiry from the token received from OpenID when the user logged
+  # in, this will typically lead to frequent need to reauthenticate and should
+  # only been enabled if you know what you are doing.
+  # Note: enabling this will cause `oidc.expiry` to be ignored.
+  use_expiry_from_token: false
+
+  # Customize the scopes used in the OIDC flow, defaults to "openid", "profile" and "email" and add custom query
+  # parameters to the Authorize Endpoint request. Scopes default to "openid", "profile" and "email".
+
+  scope: ["openid", "profile", "email", "basic"]
+  # extra_params:
+  #  domain_hint: example.com
+
+  # List allowed principal domains and/or users. If an authenticated user's domain is not in this list, the
+  # authentication request will be rejected.
+
+  # allowed_domains:
+  #  - example.com
+  # Note: Groups from keycloak have a leading '/'
+  #allowed_groups:
+    #  - /vpn
+  # allowed_users:
+  #  - alice@example.com
+
+  # Optional: PKCE (Proof Key for Code Exchange) configuration
+  # PKCE adds an additional layer of security to the OAuth 2.0 authorization code flow
+  # by preventing authorization code interception attacks
+  # See https://datatracker.ietf.org/doc/html/rfc7636
+  pkce:
+    # Enable or disable PKCE support (default: false)
+    enabled: false
+    # PKCE method to use:
+    # - plain: Use plain code verifier
+    # - S256: Use SHA256 hashed code verifier (default, recommended)
+    method: S256
+
+  # Map legacy users from pre-0.24.0 versions of headscale to the new OIDC users
+  # by taking the username from the legacy user and matching it with the username
+  # provided by the OIDC. This is useful when migrating from legacy users to OIDC
+  # to force them using the unique identifier from the OIDC and to give them a
+  # proper display name and picture if available.
+  # Note that this will only work if the username from the legacy user is the same
+  # and there is a possibility for account takeover should a username have changed
+  # with the provider.
+  # When this feature is disabled, it will cause all new logins to be created as new users.
+  # Note this option will be removed in the future and should be set to false
+  # on all new installations, or when all users have logged in with OIDC once.
+  map_legacy_users: false
 
 # Logtail configuration
 # Logtail is Tailscales logging and auditing infrastructure, it allows the control panel
